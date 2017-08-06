@@ -1,0 +1,2 @@
+kernel//compile/xtables-asn/extensions/compat_xtables.ko
+kernel//compile/xtables-asn/extensions/xt_asn.ko

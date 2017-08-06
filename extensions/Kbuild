@@ -1,0 +1,11 @@
+# -*- Makefile -*-
+
+include ${XA_ABSTOPSRCDIR}/mconfig
+-include ${XA_ABSTOPSRCDIR}/mconfig.*
+
+obj-m                    += compat_xtables.o
+
+obj-${build_asn}       += xt_asn.o
+
+-include ${M}/*.Kbuild
+-include ${M}/Kbuild.*

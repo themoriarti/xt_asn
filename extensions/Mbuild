@@ -1,0 +1,3 @@
+# -*- Makefile -*-
+
+obj-${build_asn}       += libxt_asn.so
