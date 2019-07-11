@@ -3,12 +3,12 @@
 ACLOCAL_AMFLAGS  = -I m4
 SUBDIRS          = extensions asn
 
-man_MANS := xtables-addons.8
+man_MANS := xtables-addons-asn.8
 
 .PHONY: FORCE
 FORCE:
 
-xtables-addons.8: FORCE
+xtables-addons-asn.8: FORCE
 	${MAKE} -f Makefile.mans all;
 
 clean-local-mans:
