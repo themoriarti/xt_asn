@@ -34,7 +34,7 @@ struct asn_subnet6 {
 struct asn_country_user {
 	aligned_u64 subnets;
 	__u32 count;
-	__u16 cc;
+	__u32 cc;
 };
 
 struct asn_country_kernel;
@@ -47,7 +47,7 @@ union asn_country_group {
 struct xt_asn_match_info {
 	__u8 flags;
 	__u8 count;
-	__u16 cc[XT_asn_MAX];
+	__u32 cc[XT_asn_MAX];
 
 	/* Used internally by the kernel */
 	union asn_country_group mem[XT_asn_MAX];
