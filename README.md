@@ -5,10 +5,14 @@ Personal fix by yellowlm
 ## Disclaimer
 I'm no professional software engineer. You shouldn't probably count on my stuff.
 
+## Caution
+If you are currently using the original version of xt_asn, you need to unload the xt_asn kernel module first (before or after installation) using `modprobe -r xt_asn`. If you install my xt_asn without doing this, you will get a `dmesg` error message `asn.1 match: invalid size 152 (kernel) != (user) 184` (which can of course be solved by `modprobe -r xt_asn` and then `modprobe xt_asn`).
+
 ## What this fork does
 * Added support for 4-byte ASN (original xt_asn works only for 2-byte ASNs)
 * Fixed minor typo and things on `iptables -m asn -h` 
 * Reworked the way ASN data are updated - see below.
+* Fixed compatibility issue with `iptables-services` (save and load rules).
 
 ## Update ASN data
 The ASN data is updated in an async fashion. In my network, there is a server that processes the raw bgp data (`update-asndata.sh`) and save them into `asn.csv`. On all routers of my network that needs such data, there is a cronjob downloading (`download-asndata.sh`) the `asn.csv` from the processing server and convert the data into what xt_asn can read. The consideration for this design is that processing the raw bgp data can take up a lot time and resources. Therefore, if there are multiple places where you need to use xt_asn, it would be better to have a central server that process the bgp data once for all places.

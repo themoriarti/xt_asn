@@ -266,7 +266,7 @@ asn_save(const void *ip, const struct xt_entry_match *match)
 		printf(" --destination-asn ");
 
 	for (i = 0; i < info->count; i++)
-		printf("%sxas%d", i ? "," : "", info->cc[i]);
+		printf("%s%d", i ? "," : "", info->cc[i]);
 	printf(" ");
 }
 
