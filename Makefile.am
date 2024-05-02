@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 ACLOCAL_AMFLAGS  = -I m4
-SUBDIRS          = extensions asn
+SUBDIRS          = extensions
 
 man_MANS := xtables-addons.8
 

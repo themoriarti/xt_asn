@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
+#use strict;
+#use warnings;
 
 use Net::Netmask;
 use Net::IP;
@@ -27,27 +27,30 @@ my %prefix = ();
 my $prev_prefix = '';
 my $prev_as = '';
 while(<>) {
-    if (/^PREFIX:\s+(.*?)$/)  {
-        $prev_prefix = $1;
-    } 
-    if (/^ASPATH:\s(.*?)$/) {
-        my @as_path = split /\s+/, $1;
-        # last element is originating AS
-        $prev_as = $as_path[-1];
-    }
-    # blank string at the end of block
-    if (/^\s+$/) {
-        # use hash for de-duplication
-        unless ($prefix{$prev_prefix}) {
-            $prefix{$prev_prefix} = 1;
-            my $block = new Net::Netmask($prev_prefix);
-            # "1.0.0.0","1.0.0.255","16777216","16777471","AU","Australia"
-            my $first = new Net::IP ($block->first()) or die "Can't first IP";
-            my $last = new Net::IP ($block->last()) or die "Can't last IP";
-            my @data = ($block->first(), $block->last(), $first->intip(), $last->intip(), $prev_as, $prev_as);
-            print join ',', map { "\"$_\""} @data;
-            print "\n";
-        }
-    }
+	if (/^PREFIX:\s+(.*?)$/)  {
+		$prev_prefix = $1;
+	} 
+	if (/^ASPATH:\s(.*?)$/) {
+		my @as_path = split /\s+/, $1;
+		# last element is originating AS
+		$prev_as = $as_path[-1];
+	}
+	# blank string at the end of block
+	if (/^\s+$/) {
+		# use hash for de-duplication
+		unless ($prefix{$prev_prefix}) {
+			$prefix{$prev_prefix} = 1;
+			my $block = new Net::Netmask($prev_prefix);
+			# "1.0.0.0","1.0.0.255","16777216","16777471","AU","Australia"
+			my $first = new Net::IP($block->first());
+			my $last = new Net::IP($block->last());
+			if ("$first" == "" || "$last" == "") {
+				next;
+			}
+			my @data = ($block->first(), $block->last(), $first->intip(), $last->intip(), $prev_as, $prev_as);		   
+			print join ',', map { "\"$_\""} @data;
+			print "\n";
+		}
+	}
 }
 

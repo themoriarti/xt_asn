@@ -32,12 +32,9 @@ static void asn_help(void)
 	printf (
 	"asn match options:\n"
 	"[!] --src-asn, --source-asn ASNnumber[,ASNnumber...]\n"
-	"	Match packet coming from (one of) the specified ANS(s)\n"
+	"	Match packet coming from (one of) the specified ASN(s)\n"
 	"[!] --dst-asn, --destination-asn ASNnumber[,ASNnumber...]\n"
 	"	Match packet going to (one of) the specified ASN(s)\n"
-	"\n"
-	"NOTE: The country is inputed by its ISO3166 code.\n"
-	"\n"
 	);
 }
 
@@ -102,7 +99,7 @@ asn_get_subnets(const char *code, uint32_t *count, uint8_t nfproto)
 }
  
 static struct asn_country_user *asn_load_cc(const char *code,
-    unsigned short cc, uint8_t nfproto)
+    unsigned int cc, uint8_t nfproto)
 {
 	struct asn_country_user *ginfo;
 	ginfo = malloc(sizeof(struct asn_country_user));
@@ -117,26 +114,26 @@ static struct asn_country_user *asn_load_cc(const char *code,
 	return ginfo;
 }
 
-static u_int16_t
-check_asn_cc(char *cc, u_int16_t cc_used[], u_int8_t count)
+static u_int32_t
+check_asn_cc(char *cc, u_int32_t cc_used[], u_int8_t count)
 {
 	u_int8_t i;
-	u_int16_t cc_int16;
-        // Convert 16 bit unsinged integer (up to 65535) 
-        sscanf(cc, "%d", &cc_int16);
+	u_int32_t cc_int32;
+        // Convert 32 bit unsinged integer (modern ASN are 32 bit)
+        sscanf(cc, "%d", &cc_int32);
 	// Check for presence of value in cc_used
 	for (i = 0; i < count; i++)
-		if (cc_int16 == cc_used[i])
+		if (cc_int32 == cc_used[i])
 			return 0; // Present, skip it!
-	return cc_int16;
+	return cc_int32;
 }
 
-static unsigned int parse_asn_cc(const char *ccstr, uint16_t *cc,
+static unsigned int parse_asn_cc(const char *ccstr, uint32_t *cc,
     union asn_country_group *mem, uint8_t nfproto)
 {
 	char *buffer, *cp, *next;
 	u_int8_t i, count = 0;
-	u_int16_t cctmp;
+	u_int32_t cctmp;
 
 	buffer = strdup(ccstr);
 	if (!buffer)
@@ -269,7 +266,7 @@ asn_save(const void *ip, const struct xt_entry_match *match)
 		printf(" --destination-asn ");
 
 	for (i = 0; i < info->count; i++)
-		printf("%sxas%d", i ? "," : "", info->cc[i]);
+		printf("%s%d", i ? "," : "", info->cc[i]);
 	printf(" ");
 }
 

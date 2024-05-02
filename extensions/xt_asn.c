@@ -49,7 +49,7 @@ struct asn_country_kernel {
 	void *subnets;
 	atomic_t ref;
 	unsigned int count;
-	unsigned short cc;
+	unsigned int cc;
 };
 
 static struct list_head asn_head[__asnROTO_MAX];
@@ -140,7 +140,7 @@ static void asn_try_remove_node(struct asn_country_kernel *p)
 	kfree(p);
 }
 
-static struct asn_country_kernel *find_node(unsigned short cc,
+static struct asn_country_kernel *find_node(unsigned int cc,
     enum asn_proto proto)
 {
 	struct asn_country_kernel *p;
