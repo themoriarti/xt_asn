@@ -1,6 +1,6 @@
-.TH xtables-addons 8 "" "" "v1.0 (2017-08-06)"
+.TH xtables-addons-asn 8 "" "" "v1.0 (2017-08-06)"
 .SH Name
-Xtables-addons \(em additional extensions for iptables, ip6tables, etc.
+Xtables-addons-asn \(em additional extension for iptables, ip6tables, etc., to block incoming or outgoing traffic based on ASN
 .SH Targets
 .\" @TARGET@
 .SH Matches
