@@ -1,2 +1,1 @@
 /home/moriarti/repo/xt_asn/extensions/compat_xtables.o
-/home/moriarti/repo/xt_asn/extensions/xt_asn.o

@@ -62,6 +62,9 @@ test_data_processing() {
     create_test_data "$temp_dir"
     
     if [ -f "$build_script" ]; then
+        # Create output directory
+        mkdir -p "$temp_dir/output"
+        
         if perl "$build_script" -D "$temp_dir/output" "$temp_dir/test_asn.csv" 2>/dev/null; then
             echo "✓ Data processing completed successfully"
             
@@ -197,6 +200,9 @@ test_data_format() {
     local build_script="$PROJECT_DIR/asn/xt_asn_build"
     
     create_test_data "$temp_dir"
+    
+    # Create output directory
+    mkdir -p "$temp_dir/output"
     
     if perl "$build_script" -D "$temp_dir/output" "$temp_dir/test_asn.csv" 2>/dev/null; then
         # Check IPv4 file format
