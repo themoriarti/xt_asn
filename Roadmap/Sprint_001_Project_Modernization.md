@@ -85,7 +85,7 @@ The xt_asn project is an iptables module that works with ASN lists from BGP AS a
 ---
 *Sprint started: 2025-09-09*
 *Sprint completed: 2025-09-09*
-*Total time spent: ~4 hours*
+*Total time spent: ~6 hours*
 
 ## ✅ Sprint Results
 

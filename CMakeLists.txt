@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(xt_asn VERSION 2.1.0 LANGUAGES C)
+project(xt_asn VERSION 2.2.0 LANGUAGES C)
 
 # Set default build type
 if(NOT CMAKE_BUILD_TYPE)

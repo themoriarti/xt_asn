@@ -1,3 +1,20 @@
+xtables-addons-asn (2.2.0-1) unstable; urgency=medium
+
+  * Major release with comprehensive modernization and bug fixes
+  * Complete project infrastructure overhaul
+  * Enhanced ASN data processing with reliable script execution
+  * Comprehensive testing framework with 5 test suites
+  * Modern build system supporting both autotools and CMake
+  * Professional CI/CD pipeline with multi-platform support
+  * Debian/Ubuntu packaging with systemd integration
+  * Cross-platform compatibility (Ubuntu/Debian/CentOS/RHEL/Fedora)
+  * Fixed critical ASN data processing script issues
+  * Enhanced error handling and user experience
+  * Performance optimizations and monitoring
+  * Complete documentation overhaul
+
+ -- xt_asn Maintainer <maintainer@example.com>  Mon, 09 Sep 2025 19:30:00 +0000
+
 xtables-addons-asn (2.1.0-1) unstable; urgency=medium
 
   * Initial Debian package release
