@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -e
+
+# Source debconf library
+. /usr/share/debconf/confmodule
+
+case "$1" in
+    configure)
+        # Create ASN database directories if they don't exist
+        mkdir -p /usr/share/xt_asn/{BE,LE}
+        
+        # Set proper permissions
+        chown -R root:root /usr/share/xt_asn
+        chmod -R 755 /usr/share/xt_asn
+        
+        # Create log directory
+        mkdir -p /var/log
+        touch /var/log/xt_asn.log
+        chmod 644 /var/log/xt_asn.log
+        
+        # Enable and start systemd timer for automatic updates
+        if [ -x /bin/systemctl ]; then
+            systemctl daemon-reload || true
+            systemctl enable xt-asn-update.timer || true
+            systemctl start xt-asn-update.timer || true
+        fi
+        
+        # Try to load the kernel module
+        if [ -f /lib/modules/$(uname -r)/extra/xt_asn.ko ]; then
+            modprobe xt_asn || true
+            
+            # Add module to load at boot
+            if [ ! -f /etc/modules-load.d/xt_asn.conf ]; then
+                echo "xt_asn" > /etc/modules-load.d/xt_asn.conf
+            fi
+        fi
+        
+        # Update module dependencies
+        depmod -a || true
+        
+        echo "xt_asn installation completed successfully."
+        echo ""
+        echo "To get started:"
+        echo "1. Edit /etc/xt_asn/xt_asn.conf to configure ASN data source"
+        echo "2. Run 'sudo download-asndata.sh' to download initial ASN database"
+        echo "3. Use 'iptables -m asn --help' to see usage options"
+        echo ""
+        echo "The ASN database will be automatically updated daily via systemd timer."
+        ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

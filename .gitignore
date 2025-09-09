@@ -1,29 +1,67 @@
-*.gcno
-*.la
-*.lo
-*.loT
+# Build artifacts
 *.o
+*.oo
+*.so
+*.ko
+*.mod.c
+*.symvers
+modules.order
+.*.cmd
+.*.d
+
+# Autotools
+/aclocal.m4
+/autom4te.cache/
+/build-aux/
+/config.guess
+/config.h
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
+/stamp-h1
 .deps/
-.dirstamp
 .libs/
 Makefile
 Makefile.in
 
-/downloads
+# CMake
+build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
 
-/Makefile.iptrules
-/Makefile.mans
-/.*.lst
-/matches.man
-/targets.man
+# Generated files
+xtables-addons-asn.8
+matches.man
+targets.man
+Makefile.iptrules
+Makefile.mans
 
-/aclocal.m4
-/autom4te.cache/
-/build-aux/
-/config.*
-/configure
-/libtool
-/stamp-h1
-/xtables-addons.8
-/bgpdump
+# Temporary files
 *~
+*.swp
+*.swo
+.DS_Store
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+Thumbs.db
+.directory
+
+# Log files
+*.log
+
+# Test artifacts
+test-results/

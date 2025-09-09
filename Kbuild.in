@@ -1,0 +1,11 @@
+# Kbuild file for xt_asn kernel module
+obj-m += xt_asn.o
+
+# Additional compiler flags
+ccflags-y := -I$(src) -DDEBUG=$(if $(ENABLE_DEBUG),1,0)
+
+# Source files
+xt_asn-objs := xt_asn.o
+
+# Clean files
+clean-files := *.o *.ko *.mod.c *.mod.o .*.cmd Module.symvers modules.order

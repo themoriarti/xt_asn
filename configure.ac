@@ -1,14 +1,22 @@
-AC_INIT([xtables-addons], [2.13])
+AC_INIT([xtables-addons-asn], [2.1.0])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_INSTALL
-AM_INIT_AUTOMAKE([1.10b -Wall foreign subdir-objects])
+AM_INIT_AUTOMAKE([1.11 -Wall foreign subdir-objects tar-pax])
 AC_PROG_CC
 AM_PROG_CC_C_O
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_INIT
+
+# Enable silent rules by default
+AM_SILENT_RULES([yes])
+
+# Additional compiler checks
+AC_PROG_AWK
+AC_PROG_GREP
+AC_PROG_SED
 
 AC_ARG_WITH([kbuild],
 	AS_HELP_STRING([--with-kbuild=PATH],
@@ -73,5 +81,52 @@ AC_SUBST([regular_CPPFLAGS])
 AC_SUBST([regular_CFLAGS])
 AC_SUBST([kbuilddir])
 AC_SUBST([xtlibdir])
+
+# Enable debugging
+AC_ARG_ENABLE([debug],
+	AS_HELP_STRING([--enable-debug], [Enable debug mode]),
+	[debug=$enableval], [debug=no])
+if test "x$debug" = "xyes"; then
+	regular_CFLAGS="$regular_CFLAGS -g -DDEBUG"
+else
+	regular_CFLAGS="$regular_CFLAGS -DNDEBUG"
+fi
+
+# Enable testing
+AC_ARG_ENABLE([testing],
+	AS_HELP_STRING([--enable-testing], [Enable testing framework]),
+	[testing=$enableval], [testing=no])
+AM_CONDITIONAL([ENABLE_TESTING], [test "x$testing" = "xyes"])
+
+# Check for required tools for ASN data processing
+AC_PATH_PROG([PERL], [perl], [no])
+if test "x$PERL" = "xno"; then
+	AC_MSG_WARN([Perl not found - ASN data processing scripts may not work])
+fi
+
+AC_PATH_PROG([BGPDUMP], [bgpdump], [no])
+if test "x$BGPDUMP" = "xno"; then
+	AC_MSG_WARN([bgpdump not found - ASN data processing will not work])
+fi
+
+AC_PATH_PROG([WGET], [wget], [no])
+if test "x$WGET" = "xno"; then
+	AC_PATH_PROG([CURL], [curl], [no])
+	if test "x$CURL" = "xno"; then
+		AC_MSG_WARN([Neither wget nor curl found - ASN data download will not work])
+	fi
+fi
+
 AC_CONFIG_FILES([Makefile Makefile.iptrules Makefile.mans extensions/Makefile])
+
 AC_OUTPUT
+
+echo
+echo "Configuration summary:"
+echo "  Package version: ${PACKAGE_VERSION}"
+echo "  Kernel module: $(if test -n "$kbuilddir"; then echo "yes ($kbuilddir)"; else echo "no"; fi)"
+echo "  Debug mode: $debug"
+echo "  Testing: $testing"
+echo "  Install prefix: ${prefix}"
+echo "  Xtables library dir: ${xtlibdir}"
+echo

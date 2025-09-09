@@ -1,0 +1,73 @@
+Source: xtables-addons-asn
+Section: net
+Priority: optional
+Maintainer: xt_asn Maintainer <maintainer@example.com>
+Build-Depends: debhelper-compat (= 13),
+               autotools-dev,
+               autoconf,
+               automake,
+               libtool,
+               pkg-config,
+               linux-headers-generic | linux-headers,
+               iptables-dev,
+               libxtables-dev
+Standards-Version: 4.6.0
+Homepage: https://github.com/username/xt_asn
+Vcs-Git: https://github.com/username/xt_asn.git
+Vcs-Browser: https://github.com/username/xt_asn
+Rules-Requires-Root: no
+
+Package: xtables-addons-asn
+Architecture: linux-any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         iptables (>= 1.4.5),
+         bgpdump,
+         libtext-csv-xs-perl,
+         libnet-ip-perl,
+         libnet-netmask-perl,
+         wget | curl
+Recommends: cron | systemd-cron
+Suggests: xtables-addons-asn-source
+Description: IPTables ASN filtering module
+ This package provides an iptables/netfilter kernel module for filtering
+ network traffic based on Autonomous System Numbers (ASN). It enables
+ efficient packet filtering by ASN, making it useful for geolocation-based
+ filtering, traffic analysis, and network security applications.
+ .
+ Features:
+  * Support for 4-byte ASN numbers
+  * IPv4 and IPv6 support
+  * High-performance binary search for IP range matching
+  * Real-time BGP data processing from RouteViews.org
+  * Native netfilter integration with minimal overhead
+
+Package: xtables-addons-asn-source
+Architecture: all
+Depends: ${misc:Depends},
+         module-assistant,
+         debhelper,
+         build-essential,
+         linux-headers-generic | linux-headers
+Description: Source for the xtables-addons-asn kernel module
+ This package provides the source code for the xtables-addons-asn kernel
+ module. It can be used with module-assistant or DKMS to build the kernel
+ module for custom kernels.
+ .
+ This package is useful for users who need to build the module against
+ a kernel that doesn't have pre-built module packages available.
+
+Package: xtables-addons-asn-dkms
+Architecture: all
+Depends: ${misc:Depends},
+         dkms,
+         linux-headers-generic | linux-headers
+Conflicts: xtables-addons-asn-source
+Description: DKMS source for the xtables-addons-asn kernel module
+ This package provides the xtables-addons-asn kernel module in a form
+ suitable for use with DKMS (Dynamic Kernel Module Support). DKMS will
+ automatically build and install the module whenever a new kernel is
+ installed, ensuring compatibility across kernel updates.
+ .
+ This is the recommended package for users who frequently update their
+ kernel or use custom kernels.

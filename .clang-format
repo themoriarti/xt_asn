@@ -1,0 +1,16 @@
+---
+Language: Cpp
+BasedOnStyle: Linux
+IndentWidth: 8
+UseTab: Always
+BreakBeforeBraces: Linux
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: false
+AccessModifierOffset: -8
+ColumnLimit: 80
+AlignTrailingComments: true
+SpaceBeforeParens: ControlStatements
+Cpp11BracedListStyle: false
+Standard: c++03

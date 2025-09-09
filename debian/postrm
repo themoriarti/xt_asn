@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    purge)
+        # Remove configuration files and data
+        rm -rf /etc/xt_asn
+        rm -rf /usr/share/xt_asn
+        rm -f /var/log/xt_asn.log
+        rm -f /etc/modules-load.d/xt_asn.conf
+        
+        # Remove systemd files
+        if [ -x /bin/systemctl ]; then
+            systemctl daemon-reload || true
+        fi
+        
+        echo "xt_asn has been completely removed from the system."
+        ;;
+
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

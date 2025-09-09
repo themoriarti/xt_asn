@@ -1,8 +1,13 @@
 #!/bin/sh
-ASN_DATA_DIR="~"
+ASN_DATA_DIR="${ASN_DATA_DIR:-/var/lib/xt_asn}"
 
-echo "You need to set ASN_DATA_DIR in this script first and remove Lines 4 and 5" 
-exit
+# Load configuration if available
+if [ -f /etc/xt_asn/xt_asn.conf ]; then
+    source /etc/xt_asn/xt_asn.conf
+fi
+
+# Create data directory if it doesn't exist
+mkdir -p "$ASN_DATA_DIR"
 
 yum -y install perl-Net-IP perl-Net-Netmask bgpdump wget
 

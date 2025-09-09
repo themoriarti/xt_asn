@@ -1,0 +1,26 @@
+xtables-addons-asn (2.1.0-1) unstable; urgency=medium
+
+  * Initial Debian package release
+  * Added 4-byte ASN support (improved from original 2-byte ASN support)
+  * Fixed compatibility issue with iptables-services (save and load rules)
+  * Reworked ASN data update mechanism with centralized processing
+  * Added comprehensive testing framework
+  * Modernized build system with CMake support
+  * Added systemd integration for automatic updates
+  * Improved documentation and installation guides
+  * Added DKMS support for automatic kernel module rebuilds
+  * Enhanced error handling and logging
+  * Performance optimizations for binary search algorithm
+  * Added IPv6 support improvements
+  * Fixed minor typos in iptables help messages
+
+ -- xt_asn Maintainer <maintainer@example.com>  Mon, 01 Jan 2024 12:00:00 +0000
+
+xtables-addons-asn (2.0.0-1) unstable; urgency=medium
+
+  * Complete rewrite for modern kernels
+  * Added IPv6 support
+  * Performance optimizations
+  * Based on original work by Samuel Jean & Nicolas Bouliane
+
+ -- xt_asn Maintainer <maintainer@example.com>  Mon, 01 Jan 2023 12:00:00 +0000

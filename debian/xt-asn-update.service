@@ -1,0 +1,33 @@
+[Unit]
+Description=Update xt_asn ASN database
+Documentation=man:xtables-addons-asn(8)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/download-asndata.sh
+User=root
+Group=root
+UMask=0022
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/usr/share/xt_asn /var/log
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+
+# Resource limits
+TimeoutStartSec=600
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

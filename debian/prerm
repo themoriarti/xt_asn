@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        # Stop and disable systemd timer
+        if [ -x /bin/systemctl ]; then
+            systemctl stop xt-asn-update.timer || true
+            systemctl disable xt-asn-update.timer || true
+        fi
+        
+        # Remove any active iptables rules using xt_asn
+        echo "Removing active iptables rules using xt_asn module..."
+        
+        # Save current rules to temporary file
+        TEMP_RULES=$(mktemp)
+        iptables-save > "$TEMP_RULES" 2>/dev/null || true
+        
+        # Remove rules containing asn module
+        if grep -q "asn" "$TEMP_RULES" 2>/dev/null; then
+            echo "Found iptables rules using xt_asn. Attempting to remove..."
+            grep -v "asn" "$TEMP_RULES" | iptables-restore || true
+        fi
+        
+        rm -f "$TEMP_RULES"
+        
+        # Try to unload the kernel module
+        if lsmod | grep -q xt_asn; then
+            echo "Unloading xt_asn kernel module..."
+            rmmod xt_asn || true
+        fi
+        ;;
+
+    failed-upgrade)
+        ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

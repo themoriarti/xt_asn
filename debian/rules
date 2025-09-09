@@ -1,0 +1,71 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# Enable hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# Enable parallel builds
+export DEB_BUILD_OPTIONS = parallel=$(shell nproc)
+
+%:
+	dh $@ --with autotools-dev
+
+override_dh_auto_configure:
+	./autogen.sh
+	dh_auto_configure -- \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-kbuild=/lib/modules/$$(uname -r)/build
+
+override_dh_auto_build:
+	dh_auto_build
+	# Build documentation if needed
+	$(MAKE) -f Makefile.mans all || true
+
+override_dh_auto_install:
+	dh_auto_install
+	# Install scripts
+	install -d $(CURDIR)/debian/xtables-addons-asn/usr/bin
+	install -m 755 asn/update-asndata.sh $(CURDIR)/debian/xtables-addons-asn/usr/bin/
+	install -m 755 asn/download-asndata.sh $(CURDIR)/debian/xtables-addons-asn/usr/bin/
+	install -m 755 asn/xt_asn_build $(CURDIR)/debian/xtables-addons-asn/usr/bin/
+	
+	# Install Perl scripts
+	install -d $(CURDIR)/debian/xtables-addons-asn/usr/share/xt_asn
+	install -m 755 asn/bgp_table_to_text.pl $(CURDIR)/debian/xtables-addons-asn/usr/share/xt_asn/
+	
+	# Create database directories
+	install -d $(CURDIR)/debian/xtables-addons-asn/usr/share/xt_asn/BE
+	install -d $(CURDIR)/debian/xtables-addons-asn/usr/share/xt_asn/LE
+	
+	# Install systemd service files
+	install -d $(CURDIR)/debian/xtables-addons-asn/lib/systemd/system
+	install -m 644 debian/xt-asn-update.service $(CURDIR)/debian/xtables-addons-asn/lib/systemd/system/
+	install -m 644 debian/xt-asn-update.timer $(CURDIR)/debian/xtables-addons-asn/lib/systemd/system/
+	
+	# Install configuration files
+	install -d $(CURDIR)/debian/xtables-addons-asn/etc/xt_asn
+	install -m 644 debian/xt_asn.conf $(CURDIR)/debian/xtables-addons-asn/etc/xt_asn/
+
+override_dh_auto_clean:
+	dh_auto_clean
+	# Clean generated files
+	$(MAKE) -f Makefile.mans clean || true
+	rm -f xtables-addons-asn.8
+
+override_dh_installdocs:
+	dh_installdocs
+	# Install additional documentation
+	install -d $(CURDIR)/debian/xtables-addons-asn/usr/share/doc/xtables-addons-asn
+	install -m 644 README.md $(CURDIR)/debian/xtables-addons-asn/usr/share/doc/xtables-addons-asn/
+	install -m 644 INSTALL.md $(CURDIR)/debian/xtables-addons-asn/usr/share/doc/xtables-addons-asn/
+
+# Don't install kernel module in main package (will be in separate packages)
+override_dh_dkms:
+	# Skip DKMS processing for main package
+
+.PHONY: override_dh_auto_configure override_dh_auto_build override_dh_auto_install override_dh_auto_clean override_dh_installdocs

@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily xt_asn database update
+Documentation=man:xtables-addons-asn(8)
+Requires=xt-asn-update.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=3600
+
+[Install]
+WantedBy=timers.target

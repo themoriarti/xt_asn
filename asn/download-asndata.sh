@@ -1,8 +1,17 @@
 #!/bin/sh
-ASN_DATA_URL="http://127.0.0.1/asn.csv" # You want the URL to "asn.csv" made by update-asndata.sh
+ASN_DATA_URL="${ASN_DATA_URL:-http://127.0.0.1/asn.csv}"
 
-echo "You need to set ASN_DATA_DIR in this script first and remove Lines 4 and 5" 
-exit
+# Load configuration if available
+if [ -f /etc/xt_asn/xt_asn.conf ]; then
+    source /etc/xt_asn/xt_asn.conf
+fi
+
+# Ensure we have a valid URL
+if [ "$ASN_DATA_URL" = "http://127.0.0.1/asn.csv" ]; then
+    echo "Warning: Using default URL. Please configure ASN_DATA_URL in /etc/xt_asn/xt_asn.conf"
+    echo "Set ASN_DATA_URL to point to your ASN data server."
+    exit 1
+fi
 
 yum -y install perl-Text-CSV_XS perl-Getopt-Long perl-IO
 
