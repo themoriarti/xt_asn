@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-#	Converter for MaxMind CSV database to binary, for xt_geoip
+#	Converter for ASN CSV database to binary, for xt_asn
 #	Copyright © Jan Engelhardt, 2008-2011
 #	Rebuild for xt_asn by Moriarti <mor.moriarti@gmail.com>, 2017
 use Getopt::Long;
@@ -11,19 +11,54 @@ use strict;
 my $csv = Text::CSV_XS->new({
 	allow_whitespace => 1,
 	binary => 1,
-	eol => $/,
+	auto_diag => 1,
 }); # or Text::CSV
 my $target_dir = ".";
+my $help = 0;
+
+sub show_help {
+	print <<EOF;
+Usage: $0 [OPTIONS] [INPUT_FILE]
+
+Convert ASN CSV data to binary format for xt_asn kernel module.
+
+OPTIONS:
+  -D DIR          Target directory for output files (default: current dir)
+  -h, --help      Show this help message
+
+INPUT:
+  INPUT_FILE      CSV file with ASN data (if not specified, reads from stdin)
+                  Format: start_ip,end_ip,start_num,end_num,asn,description
+
+Examples:
+  $0 -D /usr/share/xt_asn asn_data.csv
+  cat asn_data.csv | $0 -D /usr/share/xt_asn
+
+Note: The script expects CSV data with the following format:
+  IPv4: start_ip,end_ip,start_num,end_num,asn,description
+  IPv6: start_ip,end_ip,,,,asn,description
+
+EOF
+}
 
 &Getopt::Long::Configure(qw(bundling));
 &GetOptions(
 	"D=s" => \$target_dir,
+	"h|help" => \$help,
 );
 
+if ($help) {
+	show_help();
+	exit 0;
+}
+
+# Check if target directory exists
 if (!-d $target_dir) {
 	print STDERR "Target directory $target_dir does not exist.\n";
 	exit 1;
 }
+
+# Create LE and BE subdirectories
 foreach (qw(LE BE)) {
 	my $dir = "$target_dir/$_";
 	if (!-e $dir && !mkdir($dir)) {
@@ -32,33 +67,118 @@ foreach (qw(LE BE)) {
 	}
 }
 
+# Check if we have input data
+if (@ARGV == 0 && -t STDIN) {
+	print STDERR "Error: No input file specified and no data piped to stdin.\n";
+	print STDERR "Use -h or --help for usage information.\n";
+	exit 1;
+}
+
+# Verify input file exists if specified
+if (@ARGV > 0) {
+	foreach my $file (@ARGV) {
+		if (!-f $file) {
+			print STDERR "Error: Input file '$file' does not exist or is not readable.\n";
+			exit 1;
+		}
+		if (!-r $file) {
+			print STDERR "Error: Input file '$file' is not readable.\n";
+			exit 1;
+		}
+	}
+}
+
+print STDERR "Processing ASN data...\n";
 &dump(&collect());
 
 sub collect
 {
 	my %asn;
+	my $line_count = 0;
+	my $errors = 0;
 
 	while (my $row = $csv->getline(*ARGV)) {
-		if (!defined($asn{$row->[4]})) {
-			$asn{$row->[4]} = {
-				name => $row->[5],
+		$line_count++;
+		
+		# Skip empty lines or lines with insufficient columns
+		if (!defined($row) || @$row < 6) {
+			$errors++;
+			if ($errors > 10) {
+				print STDERR "\nToo many parsing errors. Stopping.\n";
+				exit 1;
+			}
+			next;
+		}
+		
+		# Extract ASN number (column 4) and name (column 5)
+		my $asn_num = $row->[4];
+		my $asn_name = $row->[5] || "Unknown";
+		
+		# Skip if ASN number is invalid
+		if (!defined($asn_num) || $asn_num !~ /^\d+$/) {
+			next;
+		}
+		
+		# Initialize ASN entry if not exists
+		if (!defined($asn{$asn_num})) {
+			$asn{$asn_num} = {
+				name => $asn_name,
 				pool_v4 => [],
 				pool_v6 => [],
 			};
 		}
-		my $c = $asn{$row->[4]};
+		
+		my $c = $asn{$asn_num};
+		
+		# Check if this is IPv6 (contains colons)
 		if ($row->[0] =~ /:/) {
-			push(@{$c->{pool_v6}},
-			     [&ip6_pack($row->[0]), &ip6_pack($row->[1])]);
+			eval {
+				push(@{$c->{pool_v6}},
+				     [&ip6_pack($row->[0]), &ip6_pack($row->[1])]);
+			};
+			if ($@) {
+				print STDERR "Warning: IPv6 parsing error at line $line_count: $@\n";
+				$errors++;
+			}
 		} else {
-			push(@{$c->{pool_v4}}, [$row->[2], $row->[3]]);
+			# IPv4 - use numeric values from columns 2 and 3
+			if (defined($row->[2]) && defined($row->[3]) && 
+			    $row->[2] =~ /^\d+$/ && $row->[3] =~ /^\d+$/) {
+				push(@{$c->{pool_v4}}, [$row->[2], $row->[3]]);
+			} else {
+				print STDERR "Warning: Invalid IPv4 range at line $line_count\n";
+				$errors++;
+			}
 		}
-		if ($. % 4096 == 0) {
-			print STDERR "\r\e[2K$. entries";
+		
+		# Progress indicator
+		if ($line_count % 4096 == 0) {
+			print STDERR "\r\e[2K$line_count entries processed";
 		}
 	}
 
-	print STDERR "\r\e[2K$. entries total\n";
+	# Check for CSV parsing errors (but ignore EOF which is normal)
+	if (my $error = $csv->error_diag()) {
+		my $error_code = $csv->error_diag() + 0;  # Get numeric error code
+		if ($error_code != 2012) {  # 2012 is EOF - End of data, which is normal
+			print STDERR "\nCSV parsing error: $error\n";
+			exit 1;
+		}
+	}
+
+	print STDERR "\r\e[2K$line_count entries total";
+	if ($errors > 0) {
+		print STDERR " ($errors errors)";
+	}
+	print STDERR "\n";
+	
+	# Check if we got any data
+	if (keys %asn == 0) {
+		print STDERR "Error: No valid ASN data found in input.\n";
+		exit 1;
+	}
+	
+	printf STDERR "Found %d unique ASN numbers\n", scalar(keys %asn);
 	return \%asn;
 }
 

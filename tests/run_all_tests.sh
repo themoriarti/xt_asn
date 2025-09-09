@@ -159,7 +159,10 @@ run_test "ASN Data Processing Tests" "$SCRIPT_DIR/test_asn_data.sh" "false"
 # Test 3: Integration Tests (requires root)
 run_test "Integration Tests" "$SCRIPT_DIR/test_integration.sh" "true"
 
-# Test 4: Performance Tests (requires root)
+# Test 4: ASN Update Script Tests
+run_test "ASN Update Script Tests" "$SCRIPT_DIR/test_asn_update.sh" "false"
+
+# Test 5: Performance Tests (requires root)
 run_test "Performance Tests" "$SCRIPT_DIR/test_performance.sh" "true"
 
 # Summary
